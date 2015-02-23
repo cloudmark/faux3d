@@ -1,0 +1,16 @@
+{
+  "name": "faux3d",
+  "version": "0.0.0",
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "bootstrap": "~3.3.1",
+    "dt-jquery": "~2.0.0",
+    "Keypress": "~2.1.0"
+  },
+  "devDependencies": {
+    "dt-jasmine": "~2.0.0"
+  },
+  "resolutions": {
+    "jquery": "~2.1.1"
+  }
+}
