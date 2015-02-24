@@ -12,14 +12,14 @@ module faux3d {
   var screenHeight:number = 480;
 
   // Camera Setup
-  var pov = 60;
+  var focalLength = 0.8;
   var depth = 20;
   var lookingAt = 90;
-  var distance = 554;
-  var scale = 4.0;
+  var distance = 480;
+  var scale = 2.0;
 
   // Create the player
-  var player = new Player(ColorUtils.RED, new Point(0, 0), lookingAt, screenWidth, pov, distance);
+  var player = new Player(ColorUtils.RED, new Point(0, 0), lookingAt, screenWidth, focalLength, distance);
 
 
   // Create the world.

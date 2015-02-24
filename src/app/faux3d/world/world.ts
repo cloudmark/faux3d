@@ -104,21 +104,37 @@ module faux3d {
         points.forEach((p, index) => {
           if(p.distance != Infinity){
             p.point.draw2d(this.context, this.origin);
-
-
-            var compensation = 1; // 1 + (0.5 * Math.cos((index/this.canvas3d.width) * (Math.PI * 2)) + 1);
-            var maxCompensation = 1;
             p.distance *= this.player.skewMatrix[index];
-            var height = (((maxCompensation * this.distance) - (p.distance * compensation)) * (this.canvas3d.height / (maxCompensation *this.distance)));
-            var c = (this.distance - p.distance) / this.distance;
 
+            var height = Math.round(this.distance/ (p.distance + 1));
+            // var height = Math.round(((this.distance - p.distance)/ this.distance) * (this.canvas3d.height/2));
+            var c = (this.distance - p.distance) / this.distance;
+            c = Math.pow(c,10);
             var rgb = ColorUtils.hexToRgb(p.color);
 
-            var line = new faux3d.elements.Line(new Point(index - this.origin.x,-(height/2)),
-                                                new Point(index- this.origin.x, +(height/2)),
-
+            var line = new faux3d.elements.Line(new Point(index - this.origin.x,-(height)),
+                                                new Point(index- this.origin.x, +(height)),
                                                 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',' + c + ')');
             line.draw2d(this.context3d, this.origin);
+
+            var line2 = new faux3d.elements.Line(new Point(index- this.origin.x, -height),
+              new Point(index- this.origin.x, -1000),'rgba(0,0,0,1)');
+            line2.draw2d(this.context3d, this.origin);
+
+            line2 = new faux3d.elements.Line(new Point(index- this.origin.x, height),
+              new Point(index- this.origin.x, +1000),'#DDDDDD');
+            line2.draw2d(this.context3d, this.origin);
+
+
+          } else {
+            var line2 = new faux3d.elements.Line(new Point(index- this.origin.x, 0),
+              new Point(index- this.origin.x, -1000),'rgba(0,0,0,1)');
+            line2.draw2d(this.context3d, this.origin);
+
+            line2 = new faux3d.elements.Line(new Point(index- this.origin.x, 0),
+              new Point(index- this.origin.x, +1000),'#DDDDDD');
+            line2.draw2d(this.context3d, this.origin);
+
           }
 
 
@@ -164,13 +180,13 @@ module faux3d {
             new Point(-15 * scale, 15 * scale),
             new Point(-15 * scale, 10)
           ),
-          new Path(ColorUtils.BLUE,
+          new Path(ColorUtils.RED,
             new Point(-10, -10),
             new Point(-10, -15 * scale),
             new Point(-15 * scale, -15 * scale),
             new Point(-15 * scale, -10)
           ),
-          new Path(ColorUtils.BLACK,
+          new Path(ColorUtils.GREEN,
             new Point(10, -10),
             new Point(10, -15 * scale),
             new Point(15 * scale, -15 * scale),

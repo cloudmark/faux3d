@@ -8,39 +8,32 @@ module faux3d {
 
   export module elements {
     export class Player extends Element {
-      public skewMatrix: number[] = [];
-      constructor(public color:string, public origin:Point, public angle:number, public rays:number, public fieldOfView:number, public distance:number) {
+      public skewMatrix:number[] = [];
+      public precacheAngles:number[] = [];
+
+      constructor(public color:string, public origin:Point, public angle:number, public rays:number, public focalLength:number, public distance:number) {
         super([], color);
-        this.lines = this.getRays();
-        var halfPov = this.fieldOfView / 2;
-        var step = this.fieldOfView / this.rays;
-        var startAngle = 0 - halfPov;
-        //for (var i = 0; i < this.rays; i++) {
-        //  var opp = this.distance * Math.tan(faux3d.utils.MathUtils.degreesToRadians(startAngle));
-        //  this.skewMatrix.push(
-        //    Math.sqrt(
-        //      (this.distance * this.distance) + (opp * opp)
-        //    ) / this.distance
-        //  );
-        //  startAngle += step;
-        //}
+
+        this.precacheAngles = [];
         for (var i = 0; i < this.rays; i++) {
-          var opp = faux3d.utils.MathUtils.degreesToRadians(startAngle);
-          this.skewMatrix.push(
-            Math.cos(opp)
-          );
-          startAngle += step;
+          var x = i / this.rays - 0.5;
+          var angle = Math.atan2(x, this.focalLength);
+          this.precacheAngles.push(faux3d.utils.MathUtils.radiansToDegrees(angle));
+
         }
+
+        this.lines = this.getRays();
+
       }
 
       getRays() {
         var rays = [];
-        var halfPov = this.fieldOfView / 2;
-        var step = this.fieldOfView / this.rays;
-        var startAngle = this.angle + halfPov;
+        this.skewMatrix = [];
         for (var i = 0; i < this.rays; i++) {
-          rays.push(new Line(this.origin.move(startAngle, 0), this.origin.move(startAngle, this.distance),'rgba(0,0,0,0.2)'));
-          startAngle -= step;
+          this.skewMatrix.push(Math.cos(faux3d.utils.MathUtils.degreesToRadians(this.precacheAngles[i])));
+          var angle = this.precacheAngles[i];
+          rays.push(new Line(this.origin.move(this.angle + angle, 0), this.origin.move(this.angle + angle, this.distance), 'rgba(0,0,0,0.2)'));
+
         }
         return rays;
       }
@@ -49,25 +42,25 @@ module faux3d {
         switch (event.direction) {
           case Direction.up:
           {
-            this.origin = this.origin.move(this.angle, 2);
+            this.origin = this.origin.move(this.angle, 1);
             this.lines = this.getRays();
             break;
           }
           case Direction.down:
           {
-            this.origin = this.origin.move(this.angle, -2);
+            this.origin = this.origin.move(this.angle, -1);
             this.lines = this.getRays();
             break;
           }
           case Direction.left:
           {
-            this.angle += 2;
+            this.angle -= 2;
             this.lines = this.getRays();
             break;
           }
           case Direction.right:
           {
-            this.angle -= 2;
+            this.angle += 2;
             this.lines = this.getRays();
             break;
           }
@@ -88,10 +81,12 @@ module faux3d {
 
 
         if (this.lines) {
-          this.lines.forEach((l)=> {
-            context.lineWidth = 1;
-            context.strokeStyle = '#FF0000';
-            l.draw2d(context, origin);
+          this.lines.forEach((l, index)=> {
+            if (index % 10 == 0) {
+              context.lineWidth = 1;
+              context.strokeStyle = '#FF0000';
+              l.draw2d(context, origin);
+            }
           });
         }
 
@@ -108,23 +103,23 @@ module faux3d {
 
           var minimalCollision = localCollisions.filter((collision) => {
             return collision.point !== null;
-          }).map((collision)=>{
-              return {
-                point: collision.point,
-                color: collision.color,
-                distance: this.origin.distance(collision.point)
-              }
-          }).sort((a,b) => {
+          }).map((collision)=> {
+            return {
+              point: collision.point,
+              color: collision.color,
+              distance: this.origin.distance(collision.point)
+            }
+          }).sort((a, b) => {
             return a.distance - b.distance
           });
 
-          if (minimalCollision.length != 0){
+          if (minimalCollision.length != 0) {
             collisions.push(minimalCollision.shift());
           } else {
-            collisions.push( {
-                point: undefined,
-                color: undefined,
-                distance: Infinity
+            collisions.push({
+              point: undefined,
+              color: undefined,
+              distance: Infinity
             });
           }
 

@@ -4,6 +4,9 @@ module faux3d {
       static degreesToRadians(degree:number) {
         return (degree % 360) * (Math.PI / 180.0);
       }
+      static radiansToDegrees(radians:number) {
+        return radians * (180.0 / Math.PI);
+      }
     }
   }
 
